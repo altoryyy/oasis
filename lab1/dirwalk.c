@@ -8,12 +8,12 @@
 #include <sys/stat.h>
 #include <locale.h>
 
-int show_links = 0;   // По умолчанию скрываем символические ссылки
-int show_dirs = 1;    // По умолчанию показываем директории
-int show_files = 1;   // По умолчанию показываем файлы
-int sort_entries = 0; // Флаг для сортировки
+int show_links = 0;
+int show_dirs = 1;
+int show_files = 1;
+int sort_entries = 0;
 
-#define MAX_ENTRIES 1024 // Максимальное количество файлов в директории
+#define MAX_ENTRIES 1024
 
 char *entries[MAX_ENTRIES];
 int count = 0;
@@ -40,7 +40,6 @@ void list_directory(const char *path)
         char fullpath[PATH_MAX];
         snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
 
-        // Пропускаем текущую и родительскую директории
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
 
@@ -50,7 +49,6 @@ void list_directory(const char *path)
             continue;
         }
 
-        // Проверяем тип файла и добавляем в массив в зависимости от опций
         if ((S_ISLNK(file_stat.st_mode) && show_links) ||
             (S_ISDIR(file_stat.st_mode) && show_dirs) ||
             (S_ISREG(file_stat.st_mode) && show_files))
@@ -64,17 +62,15 @@ void list_directory(const char *path)
 
     closedir(dp);
 
-    // Сортировка массива строк
     if (sort_entries)
     {
         qsort(entries, count, sizeof(char *), compare);
     }
 
-    // Вывод отсортированных результатов в формате find
     for (int i = 0; i < count; i++)
     {
         printf("%s\n", entries[i]);
-        free(entries[i]); // Освобождаем память
+        free(entries[i]);
     }
 }
 
@@ -87,21 +83,20 @@ void parse_options(int argc, char *argv[])
         {
         case 'l':
             show_links = 1;
-            show_files = 0; // Отключаем файлы
-                            // Включаем отображение символических ссылок
+            show_files = 0;
             break;
         case 'd':
-            show_dirs = 1;  // Включаем отображение директорий
-            show_files = 0; // Отключаем файлы
-            show_links = 0; // Отключаем символические ссылки
+            show_dirs = 1;
+            show_files = 0;
+            show_links = 0;
             break;
         case 'f':
-            show_files = 1; // Включаем отображение файлов
-            show_dirs = 0;  // Отключаем директории
-            show_links = 0; // Отключаем символические ссылки
+            show_files = 1;
+            show_dirs = 0;
+            show_links = 0;
             break;
         case 's':
-            sort_entries = 1; // Включаем сортировку
+            sort_entries = 1;
             break;
         default:
             fprintf(stderr, "Usage: %s [-l] [-d] [-f] [-s] [dir]\n", argv[0]);
